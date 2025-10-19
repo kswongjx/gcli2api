@@ -678,6 +678,32 @@ curl -X POST "http://127.0.0.1:7861/v1/models/gemini-2.5-pro:streamGenerateConte
 - Gemini 端点返回 Gemini 原生格式
 - 两种端点使用相同的 API 密码
 
+#### 3. Embeddings 端点
+
+**端点：** `/v1beta/models/{model}:embedContent` 和 `/v1/models/{model}:embedContent`  
+**推荐模型：** `gemini-embedding-001`  
+**认证方式（其一即可）：**
+- `x-goog-api-key: <API_KEY>`  
+- URL 参数：`?key=<API_KEY>`
+
+**请求示例（Bash）：**
+```bash
+curl -sS -X POST "http://127.0.0.1:7861/v1beta/models/gemini-embedding-001:embedContent" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": {"parts": [{"text": "What is the meaning of life?"}]},
+    "output_dimensionality": 1024
+  }'
+```
+
+**请求示例（PowerShell）：**
+```powershell
+curl.exe -sS -X POST "http://127.0.0.1:7861/v1beta/models/gemini-embedding-001:embedContent?key=$env:GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"content":{"parts":[{"text":"What is the meaning of life?"}]},"output_dimensionality":1024}'
+```
+
 ## 📋 完整 API 参考
 
 ### Web 控制台 API

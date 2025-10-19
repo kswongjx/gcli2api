@@ -698,6 +698,32 @@ curl -X POST "http://127.0.0.1:7861/v1/models/gemini-2.5-pro:streamGenerateConte
 - Gemini endpoints return Gemini native format
 - Both endpoints use the same API password
 
+#### 3. Embeddings Endpoint
+
+**Endpoints:** `/v1beta/models/{model}:embedContent` and `/v1/models/{model}:embedContent`  
+**Recommended Model:** `gemini-embedding-001`  
+**Authentication (choose one):**
+- `x-goog-api-key: <API_KEY>`  
+- URL parameter: `?key=<API_KEY>`
+
+**Request Example (Bash):**
+```bash
+curl -sS -X POST "http://127.0.0.1:7861/v1beta/models/gemini-embedding-001:embedContent" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": {"parts": [{"text": "What is the meaning of life?"}]},
+    "output_dimensionality": 1024
+  }'
+```
+
+**Request Example (PowerShell):**
+```powershell
+curl.exe -sS -X POST "http://127.0.0.1:7861/v1beta/models/gemini-embedding-001:embedContent?key=$env:GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"content":{"parts":[{"text":"What is the meaning of life?"}]},"output_dimensionality":1024}'
+```
+
 ## 📋 Complete API Reference
 
 ### Web Console API

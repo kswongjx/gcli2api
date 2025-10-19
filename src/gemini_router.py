@@ -11,11 +11,21 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Path, Query, sta
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from config import get_available_models, is_fake_streaming_model, is_anti_truncation_model, get_base_model_from_feature_model, get_anti_truncation_max_attempts, get_base_model_name
+from config import (
+    get_available_models,
+    is_fake_streaming_model,
+    is_anti_truncation_model,
+    get_base_model_from_feature_model,
+    get_anti_truncation_max_attempts,
+    get_base_model_name,
+    get_googleapis_proxy_url,
+)
 from log import log
 from .anti_truncation import apply_anti_truncation_to_stream
 from .credential_manager import CredentialManager
 from .google_chat_api import send_gemini_request, build_gemini_payload_from_native
+from .httpx_client import http_client
+from .utils import get_user_agent
 from .openai_transfer import _extract_content_and_reasoning
 from .task_manager import create_managed_task
 # 创建路由器
@@ -112,6 +122,51 @@ async def list_gemini_models():
     return JSONResponse(content={
         "models": gemini_models
     })
+
+# Embeddings API (Public Generative Language API passthrough)
+@router.post("/v1/v1beta/models/{model:path}:embedContent")
+@router.post("/v1/v1/models/{model:path}:embedContent")
+@router.post("/v1beta/models/{model:path}:embedContent")
+@router.post("/v1/models/{model:path}:embedContent")
+async def embed_content(
+    model: str = Path(..., description="Embedding model name (e.g., gemini-embedding-001)"),
+    request: Request = None,
+    x_goog_api_key: Optional[str] = Header(None, alias="x-goog-api-key"),
+    key: Optional[str] = Query(None),
+):
+    """Proxy embedContent requests to Generative Language API using API key.
+
+    Accepts API key via 'x-goog-api-key' header or 'key' query parameter.
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+
+    api_key = x_goog_api_key or key
+    if not api_key:
+        raise HTTPException(status_code=400, detail="Missing API key. Provide 'x-goog-api-key' header or 'key' query parameter.")
+
+    target_base = await get_googleapis_proxy_url()
+    target_url = f"{target_base}/v1beta/models/{model}:embedContent"
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": api_key,
+        "User-Agent": get_user_agent(),
+    }
+
+    # Forward request and return raw response for full compatibility
+    async with http_client.get_client(timeout=None) as client:
+        resp = await client.post(target_url, json=body, headers=headers)
+        content = resp.content or b""
+        media_type = resp.headers.get("Content-Type", "application/json")
+        try:
+            parsed = json.loads(content.decode()) if content else {}
+        except Exception:
+            # Fallback to string body when upstream doesn't return JSON
+            parsed = {"raw": content.decode(errors="ignore")}
+        return JSONResponse(content=parsed, status_code=resp.status_code, media_type=media_type)
 
 @router.post("/v1/v1beta/models/{model:path}:generateContent")
 @router.post("/v1/v1/models/{model:path}:generateContent")

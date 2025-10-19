@@ -704,6 +704,8 @@ curl.exe -sS -X POST "http://127.0.0.1:7861/v1beta/models/gemini-embedding-001:e
   -d '{"content":{"parts":[{"text":"What is the meaning of life?"}]},"output_dimensionality":1024}'
 ```
 
+提示：该端点直连 Google Generative Language API，需要有效的 Google API Key（非本服务的密码）。如需修改基础域名，可设置环境变量 `GENERATIVE_LANGUAGE_API_URL`（默认：`https://generativelanguage.googleapis.com`）。在 Windows 可用：`setx GENERATIVE_LANGUAGE_API_URL "https://generativelanguage.googleapis.com"`（重启服务生效）。
+
 ## 📋 完整 API 参考
 
 ### Web 控制台 API

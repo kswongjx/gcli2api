@@ -18,7 +18,7 @@ from config import (
     get_base_model_from_feature_model,
     get_anti_truncation_max_attempts,
     get_base_model_name,
-    get_googleapis_proxy_url,
+    get_generativelanguage_api_url,
 )
 from log import log
 from .anti_truncation import apply_anti_truncation_to_stream
@@ -147,7 +147,7 @@ async def embed_content(
     if not api_key:
         raise HTTPException(status_code=400, detail="Missing API key. Provide 'x-goog-api-key' header or 'key' query parameter.")
 
-    target_base = await get_googleapis_proxy_url()
+    target_base = await get_generativelanguage_api_url()
     target_url = f"{target_base}/v1beta/models/{model}:embedContent"
 
     headers = {

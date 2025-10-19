@@ -399,6 +399,22 @@ async def get_googleapis_proxy_url() -> str:
     """
     return str(await get_config_value("googleapis_proxy_url", "https://www.googleapis.com", "GOOGLEAPIS_PROXY_URL"))
 
+async def get_generativelanguage_api_url() -> str:
+    """
+    Get Google Generative Language API base URL.
+
+    Environment variable: GENERATIVE_LANGUAGE_API_URL
+    TOML config key: generativelanguage_api_url
+    Default: https://generativelanguage.googleapis.com
+    """
+    return str(
+        await get_config_value(
+            "generativelanguage_api_url",
+            "https://generativelanguage.googleapis.com",
+            "GENERATIVE_LANGUAGE_API_URL",
+        )
+    )
+
 
 async def get_resource_manager_api_url() -> str:
     """

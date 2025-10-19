@@ -724,6 +724,8 @@ curl.exe -sS -X POST "http://127.0.0.1:7861/v1beta/models/gemini-embedding-001:e
   -d '{"content":{"parts":[{"text":"What is the meaning of life?"}]},"output_dimensionality":1024}'
 ```
 
+Note: This endpoint proxies directly to Google Generative Language API. It requires a valid Google API key (not the panel/API password). You can override the base domain via `GENERATIVE_LANGUAGE_API_URL` (default: `https://generativelanguage.googleapis.com`). On Windows, set with: `setx GENERATIVE_LANGUAGE_API_URL "https://generativelanguage.googleapis.com"` (restart the service to apply).
+
 ## 📋 Complete API Reference
 
 ### Web Console API
